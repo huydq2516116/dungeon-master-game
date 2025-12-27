@@ -1172,7 +1172,7 @@ GameObject:
   - component: {fileID: 921834512}
   - component: {fileID: 921834514}
   m_Layer: 0
-  m_Name: HeroCharacter_Order 1
+  m_Name: HeroCharacter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1615,7 +1615,7 @@ GameObject:
   - component: {fileID: 1801147765}
   - component: {fileID: 1801147764}
   m_Layer: 0
-  m_Name: Grid_Order 0
+  m_Name: Grid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1776,9 +1776,9 @@ SceneRoots:
   m_Roots:
   - {fileID: 519420032}
   - {fileID: 1562780596}
-  - {fileID: 1801147765}
   - {fileID: 976357165}
   - {fileID: 385385661}
   - {fileID: 707096647}
   - {fileID: 1211443201}
   - {fileID: 921834513}
+  - {fileID: 1801147765}

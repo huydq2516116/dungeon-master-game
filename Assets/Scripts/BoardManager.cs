@@ -115,6 +115,23 @@ public class BoardManager : MonoBehaviour
         Floor newFloor = new Floor();
         newFloor.boardWidth = _initBoardWidth;
         newFloor.cells = new Cell[_maxBoardWidth, _initBoardHeight];
+        
+        for (int i = 0; i < _maxBoardWidth;i++)
+        {
+            for (int j = 0; j < _initBoardHeight; j++)
+            {
+                newFloor.cells[i, j] = new Cell();
+                newFloor.cells[i, j].passable = false;
+            }
+        }
+        for (int i = 1; i < _initBoardWidth-1; i++)
+        {
+            for (int j = 1; j < _initBoardHeight - 1; j++)
+            {
+                newFloor.cells[i, j].passable = true;
+            }
+        }
+
         floorList.Add(newFloor);
     }
     
@@ -125,6 +142,10 @@ public class BoardManager : MonoBehaviour
         if (oldBoardWidth >= _maxBoardWidth) return;
         int newBoardWidth = oldBoardWidth + 1;
         floorList[floor].boardWidth += 1;
+        for (int i=1; i< _initBoardHeight - 1;i++)
+        {
+            floorList[floor].cells[oldBoardWidth,i].passable = true;
+        }
         
         for (int i=1; i< _initBoardHeight - 1; i++)
         {
@@ -183,9 +204,17 @@ public class BoardManager : MonoBehaviour
     {
         return floorList[floor];
     }
+    public int GetInitBoardWidth()
+    {
+        return _initBoardWidth;
+    }
+    public int GetInitBoardHeight()
+    {
+        return _initBoardHeight;
+    }
 
 
-    Vector3Int ToNewBase(Vector2Int vector)
+    public Vector3Int ToNewBase(Vector2Int vector) //Remember to change Pathfinder if change this
     {
         return (Vector3Int)new Vector2Int(vector.x - 3, vector.y - 3);
     }
