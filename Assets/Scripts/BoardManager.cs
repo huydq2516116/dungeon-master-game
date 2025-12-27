@@ -9,12 +9,12 @@ public class BoardManager : MonoBehaviour
     public class Floor
     {
         public int boardWidth;
-        public Cell[] cells;
+        public Cell[,] cells;
     }
 
     public class Cell
     {
-        public int x, y;
+        public bool passable;
         
     }
 
@@ -28,7 +28,9 @@ public class BoardManager : MonoBehaviour
     [SerializeField] Tile innerTile;
     [SerializeField] int _initBoardHeight, _initBoardWidth;
     [SerializeField] int _distanceBetweenFloor;
-    
+    [SerializeField] int _maxBoardWidth;
+
+    int maxFloor;
 
 
     List<Floor> floorList;
@@ -43,13 +45,10 @@ public class BoardManager : MonoBehaviour
     }
     private void Start()
     {
-        GenerateFloor(0);
-        
-        // Generate First Floors
         floorList = new List<Floor>();
-        Floor floor0 = new Floor();
-        floor0.boardWidth = _initBoardWidth;
-        floorList.Add(floor0);
+        GenerateFloor(0);
+        maxFloor = 1;
+
     }
 
 
@@ -110,24 +109,33 @@ public class BoardManager : MonoBehaviour
 
         _tilemap.SetTransformMatrix(upLeft, GetTileRotation(180));
         _tilemap.SetTransformMatrix(upRight, GetTileRotation(180));
+
+        // Generate Floor
+        
+        Floor newFloor = new Floor();
+        newFloor.boardWidth = _initBoardWidth;
+        newFloor.cells = new Cell[_maxBoardWidth, _initBoardHeight];
+        floorList.Add(newFloor);
     }
     
     public void Expand(int floor)
     {
+        
         int oldBoardWidth = floorList[floor].boardWidth;
+        if (oldBoardWidth >= _maxBoardWidth) return;
         int newBoardWidth = oldBoardWidth + 1;
         floorList[floor].boardWidth += 1;
         
         for (int i=1; i< _initBoardHeight - 1; i++)
         {
             Tile tile = innerTile;
-            Vector3Int cell = ToNewBase(new Vector2Int(oldBoardWidth-1, i));
+            Vector3Int cell = ToNewBase(new Vector2Int(oldBoardWidth-1, i + _distanceBetweenFloor * floor));
             _tilemap.SetTile(cell, tile);
         }
         int  randomTopTile = Random.Range(0, topTiles.Length);
         Tile topTile = topTiles[randomTopTile];
-        Vector3Int topCell = ToNewBase(new Vector2Int(oldBoardWidth - 1, _initBoardHeight - 1));
-        Vector3Int bottomCell = ToNewBase(new Vector2Int(oldBoardWidth - 1, 0));
+        Vector3Int topCell = ToNewBase(new Vector2Int(oldBoardWidth - 1, _initBoardHeight - 1 + _distanceBetweenFloor * floor));
+        Vector3Int bottomCell = ToNewBase(new Vector2Int(oldBoardWidth - 1, _distanceBetweenFloor * floor));
 
         _tilemap.SetTile(topCell, topTile);
         _tilemap.SetTransformMatrix(topCell, Matrix4x4.identity);
@@ -138,14 +146,14 @@ public class BoardManager : MonoBehaviour
         {
             int randomTile = Random.Range(0, rightTiles.Length);
             Tile tile = rightTiles[randomTile];
-            Vector3Int cell = ToNewBase(new Vector2Int(newBoardWidth - 1, i));
+            Vector3Int cell = ToNewBase(new Vector2Int(newBoardWidth - 1, i + _distanceBetweenFloor * floor));
             _tilemap.SetTile(cell, tile);
         }
 
         Tile bottomLeftTile = cornerTiles[0];
         Tile bottomRightTile = cornerTiles[1];
-        Vector3Int topRightCell = ToNewBase(new Vector2Int(newBoardWidth - 1, _initBoardHeight - 1));
-        Vector3Int bottomRightCell = ToNewBase(new Vector2Int(newBoardWidth - 1, 0));
+        Vector3Int topRightCell = ToNewBase(new Vector2Int(newBoardWidth - 1, _initBoardHeight - 1 + _distanceBetweenFloor * floor));
+        Vector3Int bottomRightCell = ToNewBase(new Vector2Int(newBoardWidth - 1, _distanceBetweenFloor * floor));
 
         _tilemap.SetTile(topRightCell,bottomLeftTile);
         _tilemap.SetTransformMatrix(topRightCell, GetTileRotation(180));
@@ -153,10 +161,8 @@ public class BoardManager : MonoBehaviour
     }
     public void CreateNextFloor()
     {
-        Floor floor = new Floor();
-        floor.boardWidth = _initBoardWidth;
-
-        floorList.Add(floor);
+        GenerateFloor(maxFloor);
+        maxFloor++;
     }
 
     public Vector3 CellToWorld(Vector2Int vector2)
@@ -164,6 +170,20 @@ public class BoardManager : MonoBehaviour
         Vector3Int position = ToNewBase(new Vector2Int(vector2.x,vector2.y));
         return _tilemap.GetCellCenterWorld(position);
     }
+    public int GetDistanceBetweenFloor()
+    {
+        return _distanceBetweenFloor;
+    }
+
+    public int GetMaxFloor()
+    {
+        return maxFloor;
+    }
+    public Floor GetFloor(int floor)
+    {
+        return floorList[floor];
+    }
+
 
     Vector3Int ToNewBase(Vector2Int vector)
     {
@@ -177,4 +197,5 @@ public class BoardManager : MonoBehaviour
                             Quaternion.Euler(0, 0, deg),
                             Vector3.one);
     }
+    
 }
