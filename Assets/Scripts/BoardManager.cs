@@ -6,17 +6,6 @@ using UnityEngine.Tilemaps;
 
 public class BoardManager : MonoBehaviour
 { 
-    public class Floor
-    {
-        public int boardWidth;
-        public Cell[,] cells;
-    }
-
-    public class Cell
-    {
-        public bool passable;
-        
-    }
 
     public static BoardManager Instance;
 
@@ -29,13 +18,6 @@ public class BoardManager : MonoBehaviour
     [SerializeField] int _initBoardHeight, _initBoardWidth;
     [SerializeField] int _distanceBetweenFloor;
     [SerializeField] int _maxBoardWidth;
-
-    int maxFloor;
-
-
-    List<Floor> floorList;
-
-
     private void Awake()
     {
         if (Instance == null)
@@ -45,33 +27,30 @@ public class BoardManager : MonoBehaviour
     }
     private void Start()
     {
-        floorList = new List<Floor>();
+        Values.floorList = new List<Values.Floor>();
         GenerateFloor(0);
-        maxFloor = 1;
+        Values.maxFloor = 1;
 
     }
-
-
-
     private void GenerateFloor(int floor)
     {
         for (int i = 0; i < _initBoardHeight - 2; i++)
         {
             int randomTile = Random.Range(0, leftTiles.Length);
             Tile tile = leftTiles[randomTile];
-            _tilemap.SetTile(ToNewBase(new Vector2Int(0, i + 1 + _distanceBetweenFloor * floor)), tile);
+            _tilemap.SetTile(ToRealBase(new Vector2Int(0, i + 1 + _distanceBetweenFloor * floor)), tile);
         }
         for (int i = 0; i < _initBoardHeight - 2; i++)
         {
             int randomTile = Random.Range(0, rightTiles.Length);
             Tile tile = rightTiles[randomTile];
-            _tilemap.SetTile(ToNewBase(new Vector2Int(_initBoardWidth - 1, i + 1 + _distanceBetweenFloor * floor)), tile);
+            _tilemap.SetTile(ToRealBase(new Vector2Int(_initBoardWidth - 1, i + 1 + _distanceBetweenFloor * floor)), tile);
         }
         for (int i = 0; i < _initBoardWidth - 2; i++)
         {
             int randomTile = Random.Range(0, topTiles.Length);
             Tile tile = topTiles[randomTile];
-            Vector3Int cell = ToNewBase(new Vector2Int(i + 1, 0 + _distanceBetweenFloor * floor));
+            Vector3Int cell = ToRealBase(new Vector2Int(i + 1, 0 + _distanceBetweenFloor * floor));
             _tilemap.SetTile(cell, tile);
 
             _tilemap.SetTransformMatrix(cell, GetTileRotation(180));
@@ -80,7 +59,7 @@ public class BoardManager : MonoBehaviour
         {
             int randomTile = Random.Range(0, topTiles.Length);
             Tile tile = topTiles[randomTile];
-            Vector3Int cell = ToNewBase(new Vector2Int(i + 1, _initBoardHeight - 1 + _distanceBetweenFloor * floor));
+            Vector3Int cell = ToRealBase(new Vector2Int(i + 1, _initBoardHeight - 1 + _distanceBetweenFloor * floor));
             _tilemap.SetTile(cell, tile);
         }
         for (int i = 0; i < _initBoardWidth - 2; i++)
@@ -88,7 +67,7 @@ public class BoardManager : MonoBehaviour
             for (int j = 0; j < _initBoardHeight - 2; j++)
             {
                 Tile tile = innerTile;
-                Vector3Int cell = ToNewBase(new Vector2Int(i + 1, j + 1 + _distanceBetweenFloor * floor));
+                Vector3Int cell = ToRealBase(new Vector2Int(i + 1, j + 1 + _distanceBetweenFloor * floor));
                 _tilemap.SetTile(cell, tile);
             }
         }
@@ -97,10 +76,10 @@ public class BoardManager : MonoBehaviour
         Tile bottomLeftTile = cornerTiles[0];
         Tile bottomRightTile = cornerTiles[1];
 
-        Vector3Int bottomLeft = ToNewBase(new Vector2Int(0, 0 + _distanceBetweenFloor * floor));
-        Vector3Int bottomRight = ToNewBase(new Vector2Int(_initBoardWidth - 1, 0 + _distanceBetweenFloor * floor));
-        Vector3Int upLeft = ToNewBase(new Vector2Int(0, _initBoardHeight - 1 + _distanceBetweenFloor * floor));
-        Vector3Int upRight = ToNewBase(new Vector2Int(_initBoardWidth - 1, _initBoardHeight - 1 + _distanceBetweenFloor * floor));
+        Vector3Int bottomLeft = ToRealBase(new Vector2Int(0, 0 + _distanceBetweenFloor * floor));
+        Vector3Int bottomRight = ToRealBase(new Vector2Int(_initBoardWidth - 1, 0 + _distanceBetweenFloor * floor));
+        Vector3Int upLeft = ToRealBase(new Vector2Int(0, _initBoardHeight - 1 + _distanceBetweenFloor * floor));
+        Vector3Int upRight = ToRealBase(new Vector2Int(_initBoardWidth - 1, _initBoardHeight - 1 + _distanceBetweenFloor * floor));
 
         _tilemap.SetTile(bottomLeft, bottomLeftTile);
         _tilemap.SetTile(bottomRight, bottomRightTile);
@@ -112,15 +91,15 @@ public class BoardManager : MonoBehaviour
 
         // Generate Floor
         
-        Floor newFloor = new Floor();
+        Values.Floor newFloor = new Values.Floor();
         newFloor.boardWidth = _initBoardWidth;
-        newFloor.cells = new Cell[_maxBoardWidth, _initBoardHeight];
+        newFloor.cells = new Values.Cell[_maxBoardWidth, _initBoardHeight];
         
         for (int i = 0; i < _maxBoardWidth;i++)
         {
             for (int j = 0; j < _initBoardHeight; j++)
             {
-                newFloor.cells[i, j] = new Cell();
+                newFloor.cells[i, j] = new Values.Cell();
                 newFloor.cells[i, j].passable = false;
             }
         }
@@ -132,31 +111,31 @@ public class BoardManager : MonoBehaviour
             }
         }
 
-        floorList.Add(newFloor);
+        Values.floorList.Add(newFloor);
     }
     
     public void Expand(int floor)
     {
         
-        int oldBoardWidth = floorList[floor].boardWidth;
+        int oldBoardWidth = Values.floorList[floor].boardWidth;
         if (oldBoardWidth >= _maxBoardWidth) return;
         int newBoardWidth = oldBoardWidth + 1;
-        floorList[floor].boardWidth += 1;
+        Values.floorList[floor].boardWidth += 1;
         for (int i=1; i< _initBoardHeight - 1;i++)
         {
-            floorList[floor].cells[oldBoardWidth,i].passable = true;
+            Values.floorList[floor].cells[oldBoardWidth,i].passable = true;
         }
         
         for (int i=1; i< _initBoardHeight - 1; i++)
         {
             Tile tile = innerTile;
-            Vector3Int cell = ToNewBase(new Vector2Int(oldBoardWidth-1, i + _distanceBetweenFloor * floor));
+            Vector3Int cell = ToRealBase(new Vector2Int(oldBoardWidth-1, i + _distanceBetweenFloor * floor));
             _tilemap.SetTile(cell, tile);
         }
         int  randomTopTile = Random.Range(0, topTiles.Length);
         Tile topTile = topTiles[randomTopTile];
-        Vector3Int topCell = ToNewBase(new Vector2Int(oldBoardWidth - 1, _initBoardHeight - 1 + _distanceBetweenFloor * floor));
-        Vector3Int bottomCell = ToNewBase(new Vector2Int(oldBoardWidth - 1, _distanceBetweenFloor * floor));
+        Vector3Int topCell = ToRealBase(new Vector2Int(oldBoardWidth - 1, _initBoardHeight - 1 + _distanceBetweenFloor * floor));
+        Vector3Int bottomCell = ToRealBase(new Vector2Int(oldBoardWidth - 1, _distanceBetweenFloor * floor));
 
         _tilemap.SetTile(topCell, topTile);
         _tilemap.SetTransformMatrix(topCell, Matrix4x4.identity);
@@ -167,14 +146,14 @@ public class BoardManager : MonoBehaviour
         {
             int randomTile = Random.Range(0, rightTiles.Length);
             Tile tile = rightTiles[randomTile];
-            Vector3Int cell = ToNewBase(new Vector2Int(newBoardWidth - 1, i + _distanceBetweenFloor * floor));
+            Vector3Int cell = ToRealBase(new Vector2Int(newBoardWidth - 1, i + _distanceBetweenFloor * floor));
             _tilemap.SetTile(cell, tile);
         }
 
         Tile bottomLeftTile = cornerTiles[0];
         Tile bottomRightTile = cornerTiles[1];
-        Vector3Int topRightCell = ToNewBase(new Vector2Int(newBoardWidth - 1, _initBoardHeight - 1 + _distanceBetweenFloor * floor));
-        Vector3Int bottomRightCell = ToNewBase(new Vector2Int(newBoardWidth - 1, _distanceBetweenFloor * floor));
+        Vector3Int topRightCell = ToRealBase(new Vector2Int(newBoardWidth - 1, _initBoardHeight - 1 + _distanceBetweenFloor * floor));
+        Vector3Int bottomRightCell = ToRealBase(new Vector2Int(newBoardWidth - 1, _distanceBetweenFloor * floor));
 
         _tilemap.SetTile(topRightCell,bottomLeftTile);
         _tilemap.SetTransformMatrix(topRightCell, GetTileRotation(180));
@@ -182,13 +161,13 @@ public class BoardManager : MonoBehaviour
     }
     public void CreateNextFloor()
     {
-        GenerateFloor(maxFloor);
-        maxFloor++;
+        GenerateFloor(Values.maxFloor);
+        Values.maxFloor++;
     }
 
     public Vector3 CellToWorld(Vector2Int vector2)
     {
-        Vector3Int position = ToNewBase(new Vector2Int(vector2.x,vector2.y));
+        Vector3Int position = ToRealBase(new Vector2Int(vector2.x,vector2.y));
         return _tilemap.GetCellCenterWorld(position);
     }
     public int GetDistanceBetweenFloor()
@@ -198,11 +177,11 @@ public class BoardManager : MonoBehaviour
 
     public int GetMaxFloor()
     {
-        return maxFloor;
+        return Values.maxFloor;
     }
-    public Floor GetFloor(int floor)
+    public Values.Floor GetFloor(int floor)
     {
-        return floorList[floor];
+        return Values.floorList[floor];
     }
     public int GetInitBoardWidth()
     {
@@ -213,10 +192,18 @@ public class BoardManager : MonoBehaviour
         return _initBoardHeight;
     }
 
+    public Vector2Int GetWorldPosToCell(Vector2 pos)
+    {
+        return (Vector2Int)ToGameBase((Vector2Int)_tilemap.WorldToCell(pos));
+    }
 
-    public Vector3Int ToNewBase(Vector2Int vector) //Remember to change Pathfinder if change this
+    public Vector3Int ToRealBase(Vector2Int vector) //Remember to change down if change this
     {
         return (Vector3Int)new Vector2Int(vector.x - 3, vector.y - 3);
+    }
+    public Vector3Int ToGameBase(Vector2Int vector) //Remember to change up if change this
+    {
+        return (Vector3Int)new Vector2Int(vector.x + 3, vector.y + 3);
     }
     Matrix4x4 GetTileRotation(int deg)
     {
@@ -225,6 +212,5 @@ public class BoardManager : MonoBehaviour
                             Vector3.zero,
                             Quaternion.Euler(0, 0, deg),
                             Vector3.one);
-    }
-    
+    } 
 }
