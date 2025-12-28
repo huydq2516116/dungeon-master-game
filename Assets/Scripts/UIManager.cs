@@ -29,12 +29,18 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
+        TickManager.Instance.StartUIManager += StartUIManager;
+    }
+    private void StartUIManager()
+    {
         _backButton.gameObject.SetActive(false);
         
         _expandFloorButton.onClick.AddListener(() => BoardManager.Expand(0));
         _nextFloorButton.onClick.AddListener(BoardManager.CreateNextFloor);
         _nextButton.onClick.AddListener(() => MoveCameraToFloor(1));
         _backButton.onClick.AddListener(() => MoveCameraToFloor(-1));
+        _moveObjectButton.onClick.AddListener(Values.ReverseMoveMode);
+
         _currentFloor = 0;
 
         _clickActionRef.action.Enable();
@@ -59,7 +65,11 @@ public class UIManager : MonoBehaviour
     {
         _backButton.gameObject.SetActive(_currentFloor > 0);
         _nextButton.gameObject.SetActive(_currentFloor < BoardManager.Instance.GetMaxFloor() - 1);
-        MoveObject();
+        if (Values.isMoveMode)
+        {
+            MoveObject();
+        }
+        
         
     }
 
@@ -75,7 +85,7 @@ public class UIManager : MonoBehaviour
 
                 Vector2Int mousePosInTile = BoardManager.GetWorldPosToCell(worldMousePos);
 
-                if (mousePosInTile.x < 0 || mousePosInTile.y < 0) return;
+                if (mousePosInTile.x < 0 || mousePosInTile.y < 0 || mousePosInTile.x >= 12 || mousePosInTile.y >= 5) return;
 
                 Values.Floor floor = Values.floorList[_currentFloor];
                 Values.Cell cell = floor.cells[mousePosInTile.x, mousePosInTile.y];
@@ -84,13 +94,23 @@ public class UIManager : MonoBehaviour
                 {
                     _grabbed = true;
                     _grabbedObject = objectSelected;
+                    Debug.Log("ObjectSelected: " + objectSelected);
+                    Values.SetContainedObject(_currentFloor, mousePosInTile.x, mousePosInTile.y, null);
+                    Values.SetPassable(_currentFloor, mousePosInTile.x, mousePosInTile.y, true);
+                    Values.SetPlaceable(_currentFloor, mousePosInTile.x, mousePosInTile.y, true);
+
                 }
                 else if (objectSelected == null && _grabbed)
                 {
+                    if (!Values.GetPlaceable(_currentFloor, mousePosInTile.x, mousePosInTile.y)) return;
                     _grabbed = false;
-                    Values.ChangeContainedObject(_currentFloor, mousePosInTile.x, mousePosInTile.y, _grabbedObject);
+                    Values.SetContainedObject(_currentFloor, mousePosInTile.x, mousePosInTile.y, _grabbedObject);
                     _grabbedObject.gameObject.transform.position = BoardManager.CellToWorld(mousePosInTile);
-                    _grabbedObject = null;
+                    Values.SetPlaceable(_currentFloor, mousePosInTile.x, mousePosInTile.y, false);
+                    _grabbedObject = null;   
+                }
+                else
+                {
 
                 }
 

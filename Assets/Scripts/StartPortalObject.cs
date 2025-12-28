@@ -2,10 +2,11 @@ using UnityEngine;
 
 public class StartPortalObject : CellObject
 {
-    private void Start()
+    protected override void StartCellObject()
     {
         transform.position = BoardManager.Instance.CellToWorld(new Vector2Int(1, 1));
-        Values.floorList[0].cells[1, 1].containedObject = this;
-        Values.floorList[0].cells[1, 1].passable = true;
+        Values.SetContainedObject(0, 1, 1, this);
+        Values.SetPassable(0, 1, 1, true);
+        Values.SetPlaceable(0, 1, 1, false);
     }
 }

@@ -15,6 +15,7 @@ public class CameraMovement : MonoBehaviour
     {
         _cam = GetComponent<Camera>();
     }
+    
     private void Start()
     {
         c_isMoving = false;

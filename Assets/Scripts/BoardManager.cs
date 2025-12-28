@@ -27,12 +27,22 @@ public class BoardManager : MonoBehaviour
     }
     private void Start()
     {
+        TickManager.Instance.StartBoardManager += StartBoardManager;
+    }
+    private void StartBoardManager()
+    {
         Values.floorList = new List<Values.Floor>();
         GenerateFloor(0);
         Values.maxFloor = 1;
-
+        Values.isMoveMode = false;
     }
+
     private void GenerateFloor(int floor)
+    {
+        GenerateFloorOnTilemap(floor);
+        GenerateFloorInfo(floor);
+    }
+    void GenerateFloorOnTilemap(int floor)
     {
         for (int i = 0; i < _initBoardHeight - 2; i++)
         {
@@ -88,42 +98,42 @@ public class BoardManager : MonoBehaviour
 
         _tilemap.SetTransformMatrix(upLeft, GetTileRotation(180));
         _tilemap.SetTransformMatrix(upRight, GetTileRotation(180));
-
-        // Generate Floor
-        
+    }
+    void GenerateFloorInfo(int floor)
+    {
         Values.Floor newFloor = new Values.Floor();
         newFloor.boardWidth = _initBoardWidth;
         newFloor.cells = new Values.Cell[_maxBoardWidth, _initBoardHeight];
-        
-        for (int i = 0; i < _maxBoardWidth;i++)
+        Values.floorList.Add(newFloor);
+        for (int i = 0; i < _maxBoardWidth; i++)
         {
             for (int j = 0; j < _initBoardHeight; j++)
             {
                 newFloor.cells[i, j] = new Values.Cell();
-                newFloor.cells[i, j].passable = false;
+                Values.SetPassable(0, i, j, false);
+                Values.SetPlaceable(0, i, j, false);
             }
         }
-        for (int i = 1; i < _initBoardWidth-1; i++)
+        for (int i = 1; i < _initBoardWidth - 1; i++)
         {
             for (int j = 1; j < _initBoardHeight - 1; j++)
             {
-                newFloor.cells[i, j].passable = true;
+                Values.SetPassable(0, i, j, true);
+                Values.SetPlaceable(0, i, j, true);
             }
         }
-
-        Values.floorList.Add(newFloor);
     }
-    
+
     public void Expand(int floor)
     {
-        
         int oldBoardWidth = Values.floorList[floor].boardWidth;
         if (oldBoardWidth >= _maxBoardWidth) return;
         int newBoardWidth = oldBoardWidth + 1;
         Values.floorList[floor].boardWidth += 1;
         for (int i=1; i< _initBoardHeight - 1;i++)
         {
-            Values.floorList[floor].cells[oldBoardWidth,i].passable = true;
+            Values.SetPassable(floor, oldBoardWidth - 1, i, true);
+            Values.SetPlaceable(floor, oldBoardWidth - 1, i, true);
         }
         
         for (int i=1; i< _initBoardHeight - 1; i++)
@@ -158,6 +168,8 @@ public class BoardManager : MonoBehaviour
         _tilemap.SetTile(topRightCell,bottomLeftTile);
         _tilemap.SetTransformMatrix(topRightCell, GetTileRotation(180));
         _tilemap.SetTile(bottomRightCell,bottomRightTile);
+
+        
     }
     public void CreateNextFloor()
     {

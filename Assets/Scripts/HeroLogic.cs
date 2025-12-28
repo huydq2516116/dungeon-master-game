@@ -5,13 +5,11 @@ public class HeroLogic : MonoBehaviour
 {
     bool _isMoving;
     Vector3 _moveTarget;
-    int floor;
 
     [SerializeField] float _moveSpeed;
     
     private void Start()
     {
-        floor = 0;
         transform.position = BoardManager.Instance.CellToWorld(new Vector2Int(-1, -1));
         _isMoving = false;
 
