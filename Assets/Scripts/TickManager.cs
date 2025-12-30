@@ -11,6 +11,7 @@ public class TickManager : MonoBehaviour
     public event Action StartBoardManager;
     public event Action StartUIManager;
     public event Action StartCellObject;
+    public event Action StartIntermission;
 
     public event Action HeroTick;
     public event Action TrapTick;
@@ -43,6 +44,7 @@ public class TickManager : MonoBehaviour
             StartBoardManager?.Invoke();
             StartUIManager?.Invoke();
             StartCellObject?.Invoke();
+            StartIntermission?.Invoke();
         }
 
         if (timer > tickSpeed)

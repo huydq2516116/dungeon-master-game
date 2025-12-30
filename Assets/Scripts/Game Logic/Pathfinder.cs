@@ -6,7 +6,7 @@ public static class Pathfinder
 {
     public static Vector2Int[] FindPath(Vector2Int start, Vector2Int end, Vector2Int[] blockedArray, int n)
     {
-        int width = BoardManager.Instance.GetInitBoardWidth();
+        int width = BoardManager.Instance.GetMaxWidth();
         int height = BoardManager.Instance.GetInitBoardHeight();
         bool[,] visited = new bool[width, height];
         Vector2Int[,] parent = new Vector2Int[width, height];

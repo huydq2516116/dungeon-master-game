@@ -10,7 +10,7 @@ public class HeroLogic : MonoBehaviour
     
     private void Start()
     {
-        transform.position = BoardManager.Instance.CellToWorld(new Vector2Int(-1, -1));
+        transform.position = BoardManager.Instance.CellToWorld(new Vector2Int(-1, -1), 0);
         _isMoving = false;
 
         TickManager.Instance.HeroTick += HeroTick;
@@ -18,7 +18,7 @@ public class HeroLogic : MonoBehaviour
 
     void MoveTo(Vector2Int vector2)
     {
-        _moveTarget = BoardManager.Instance.CellToWorld(vector2);
+        _moveTarget = BoardManager.Instance.CellToWorld(vector2,0);
         _isMoving = true;
     }
 

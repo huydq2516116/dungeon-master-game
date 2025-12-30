@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -32,6 +33,8 @@ public class BoardManager : MonoBehaviour
     private void StartBoardManager()
     {
         Values.floorList = new List<Values.Floor>();
+        Values.startPositions = new List<Vector2Int>();
+        Values.endPositions = new List<Vector2Int>();
         GenerateFloor(0);
         Values.maxFloor = 1;
         Values.isMoveMode = false;
@@ -122,6 +125,9 @@ public class BoardManager : MonoBehaviour
                 Values.SetPlaceable(0, i, j, true);
             }
         }
+
+        Values.startPositions.Add(new Vector2Int(1, 1));
+        Values.endPositions.Add(new Vector2Int(5, 4));
     }
 
     public void Expand(int floor)
@@ -177,9 +183,9 @@ public class BoardManager : MonoBehaviour
         Values.maxFloor++;
     }
 
-    public Vector3 CellToWorld(Vector2Int vector2)
+    public Vector3 CellToWorld(Vector2Int vector2, int floor)
     {
-        Vector3Int position = ToRealBase(new Vector2Int(vector2.x,vector2.y));
+        Vector3Int position = ToRealBase(new Vector2Int(vector2.x,vector2.y + floor * _distanceBetweenFloor));
         return _tilemap.GetCellCenterWorld(position);
     }
     public int GetDistanceBetweenFloor()
@@ -191,13 +197,14 @@ public class BoardManager : MonoBehaviour
     {
         return Values.maxFloor;
     }
-    public Values.Floor GetFloor(int floor)
-    {
-        return Values.floorList[floor];
-    }
+
     public int GetInitBoardWidth()
     {
         return _initBoardWidth;
+    }
+    public int GetMaxWidth()
+    {
+        return _maxBoardWidth;
     }
     public int GetInitBoardHeight()
     {
@@ -217,6 +224,12 @@ public class BoardManager : MonoBehaviour
     {
         return (Vector3Int)new Vector2Int(vector.x + 3, vector.y + 3);
     }
+
+    public void SetColorToTile(Vector2Int cellPos, Color color) {
+        _tilemap.SetTileFlags(ToRealBase(cellPos), TileFlags.None);
+        _tilemap.SetColor(ToRealBase(cellPos), color);
+    }
+
     Matrix4x4 GetTileRotation(int deg)
     {
         

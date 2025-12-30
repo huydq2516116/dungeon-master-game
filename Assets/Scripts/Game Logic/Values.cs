@@ -7,6 +7,7 @@ public static class Values
     {
         public int boardWidth;
         public Cell[,] cells;
+        public Vector2Int[] heroTripCells;
     }
     public class Cell
     {
@@ -23,11 +24,15 @@ public static class Values
 
     public static List<Floor> floorList;
 
+    public static List<Vector2Int> startPositions;
+    public static List<Vector2Int> endPositions;
 
 
 
-
-
+    public static Floor GetFloor(int floor)
+    {
+        return floorList[floor];
+    }
     public static void SetContainedObject(int floor, int cell_x, int cell_y, CellObject containedObject)
     {
         floorList[floor].cells[cell_x,cell_y].containedObject = containedObject;

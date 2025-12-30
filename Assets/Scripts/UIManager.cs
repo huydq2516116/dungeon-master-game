@@ -19,6 +19,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] InputActionReference _clickActionRef;
     bool _clicked;
     CellObject _grabbedObject;
+    Vector2Int _grabbedPosition;
     bool _grabbed;
 
     int _currentFloor;
@@ -94,24 +95,17 @@ public class UIManager : MonoBehaviour
                 {
                     _grabbed = true;
                     _grabbedObject = objectSelected;
+                    _grabbedPosition = mousePosInTile;
                     Debug.Log("ObjectSelected: " + objectSelected);
-                    Values.SetContainedObject(_currentFloor, mousePosInTile.x, mousePosInTile.y, null);
-                    Values.SetPassable(_currentFloor, mousePosInTile.x, mousePosInTile.y, true);
-                    Values.SetPlaceable(_currentFloor, mousePosInTile.x, mousePosInTile.y, true);
 
                 }
                 else if (objectSelected == null && _grabbed)
                 {
                     if (!Values.GetPlaceable(_currentFloor, mousePosInTile.x, mousePosInTile.y)) return;
                     _grabbed = false;
-                    Values.SetContainedObject(_currentFloor, mousePosInTile.x, mousePosInTile.y, _grabbedObject);
-                    _grabbedObject.gameObject.transform.position = BoardManager.CellToWorld(mousePosInTile);
-                    Values.SetPlaceable(_currentFloor, mousePosInTile.x, mousePosInTile.y, false);
+                    _grabbedObject.Moved(_grabbedPosition, mousePosInTile, _currentFloor);
+                    
                     _grabbedObject = null;   
-                }
-                else
-                {
-
                 }
 
             }
