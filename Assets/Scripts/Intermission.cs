@@ -14,13 +14,6 @@ public class Intermission : MonoBehaviour
     void StartIntermission()
     {
         
-        Vector2Int[] highlightCell = Pathfinder.FindPath(new Vector2Int(1, 1), new Vector2Int(5, 4), null, 0);
-        Values.GetFloor(0).heroTripCells = highlightCell;
-
-        for (int i = 1; i < highlightCell.Length; i++)
-        {
-            BoardManager.Instance.SetColorToTile(highlightCell[i], Color.yellow);
-        }
     }
 
     public void DrawHeroPlan(int floor, Vector2Int startPos, Vector2Int endPos)
@@ -31,6 +24,7 @@ public class Intermission : MonoBehaviour
 
         for (int i = 1; i < highlightCell.Length; i++)
         {
+            highlightCell[i] = new Vector2Int(highlightCell[i].x, highlightCell[i].y + BoardManager.Instance.GetDistanceBetweenFloor() * floor);
             BoardManager.Instance.SetColorToTile(highlightCell[i], Color.yellow);
         }
     }
@@ -40,7 +34,7 @@ public class Intermission : MonoBehaviour
         {
             for (int j = 1; j < BoardManager.Instance.GetMaxWidth(); j++)
             {
-                BoardManager.Instance.SetColorToTile(new Vector2Int(j, i), Color.white);
+                BoardManager.Instance.SetColorToTile(new Vector2Int(j, i + BoardManager.Instance.GetDistanceBetweenFloor() * floor), Color.white);
             }
         }
     }

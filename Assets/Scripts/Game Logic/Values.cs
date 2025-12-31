@@ -61,6 +61,10 @@ public static class Values
     {
         isMoveMode = !isMoveMode;
     }
+    public static int GetMaxFloor()
+    {
+        return maxFloor;
+    }
     
 
 }

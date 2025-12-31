@@ -15,6 +15,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] Button _expandFloorButton;
     [SerializeField] Button _nextFloorButton;
     [SerializeField] Button _moveObjectButton;
+    [SerializeField] Button _runGameButton;
+    [SerializeField] Button _drawButton;
     //Move Object
     [SerializeField] InputActionReference _clickActionRef;
     bool _clicked;
@@ -36,11 +38,12 @@ public class UIManager : MonoBehaviour
     {
         _backButton.gameObject.SetActive(false);
         
-        _expandFloorButton.onClick.AddListener(() => BoardManager.Expand(0));
+        _expandFloorButton.onClick.AddListener(() => BoardManager.Expand(_currentFloor));
         _nextFloorButton.onClick.AddListener(BoardManager.CreateNextFloor);
         _nextButton.onClick.AddListener(() => MoveCameraToFloor(1));
         _backButton.onClick.AddListener(() => MoveCameraToFloor(-1));
         _moveObjectButton.onClick.AddListener(Values.ReverseMoveMode);
+        _drawButton.onClick.AddListener(() => Intermission.Instance.DrawHeroPlan(_currentFloor, Values.startPositions[_currentFloor], Values.endPositions[_currentFloor]));
 
         _currentFloor = 0;
 
@@ -54,18 +57,13 @@ public class UIManager : MonoBehaviour
     {
         _currentFloor += floorChange;
         _cameraMovement.MoveCamera(_currentFloor);
-        ChangeExpandFloorTarget();
     }
-    void ChangeExpandFloorTarget()
-    {
-        _expandFloorButton.onClick.RemoveAllListeners();
-        _expandFloorButton.onClick.AddListener(() => BoardManager.Instance.Expand(_currentFloor));
-    }
+
 
     void UITick()
     {
         _backButton.gameObject.SetActive(_currentFloor > 0);
-        _nextButton.gameObject.SetActive(_currentFloor < BoardManager.Instance.GetMaxFloor() - 1);
+        _nextButton.gameObject.SetActive(_currentFloor < Values.GetMaxFloor() - 1);
         if (Values.isMoveMode)
         {
             MoveObject();
@@ -84,10 +82,9 @@ public class UIManager : MonoBehaviour
                 Vector2 mousePos = Mouse.current.position.ReadValue();
                 Vector2 worldMousePos = _cam.ScreenToWorldPoint(mousePos);
 
-                Vector2Int mousePosInTile = BoardManager.GetWorldPosToCell(worldMousePos);
+                Vector2Int mousePosInTile = BoardManager.GetWorldPosToCell(worldMousePos,_currentFloor);
 
                 if (mousePosInTile.x < 0 || mousePosInTile.y < 0 || mousePosInTile.x >= 12 || mousePosInTile.y >= 5) return;
-
                 Values.Floor floor = Values.floorList[_currentFloor];
                 Values.Cell cell = floor.cells[mousePosInTile.x, mousePosInTile.y];
                 CellObject objectSelected = cell.containedObject;

@@ -19,6 +19,8 @@ public class BoardManager : MonoBehaviour
     [SerializeField] int _initBoardHeight, _initBoardWidth;
     [SerializeField] int _distanceBetweenFloor;
     [SerializeField] int _maxBoardWidth;
+
+    [SerializeField] GameObject _startPortalPrefab, _endPortalPrefab;
     private void Awake()
     {
         if (Instance == null)
@@ -42,8 +44,8 @@ public class BoardManager : MonoBehaviour
 
     private void GenerateFloor(int floor)
     {
-        GenerateFloorOnTilemap(floor);
         GenerateFloorInfo(floor);
+        GenerateFloorOnTilemap(floor);
     }
     void GenerateFloorOnTilemap(int floor)
     {
@@ -101,6 +103,13 @@ public class BoardManager : MonoBehaviour
 
         _tilemap.SetTransformMatrix(upLeft, GetTileRotation(180));
         _tilemap.SetTransformMatrix(upRight, GetTileRotation(180));
+
+        GameObject startPrefab = Instantiate(_startPortalPrefab);
+        StartPortalObject startPortalObject = startPrefab.GetComponent<StartPortalObject>();
+        startPortalObject.Generated(floor);
+        GameObject endPrefab = Instantiate(_endPortalPrefab);
+        EndPortalObject endPortalObject = endPrefab.GetComponent<EndPortalObject>();
+        endPortalObject.Generated(floor);
     }
     void GenerateFloorInfo(int floor)
     {
@@ -113,21 +122,18 @@ public class BoardManager : MonoBehaviour
             for (int j = 0; j < _initBoardHeight; j++)
             {
                 newFloor.cells[i, j] = new Values.Cell();
-                Values.SetPassable(0, i, j, false);
-                Values.SetPlaceable(0, i, j, false);
+                Values.SetPassable(floor, i, j, false);
+                Values.SetPlaceable(floor, i, j, false);
             }
         }
         for (int i = 1; i < _initBoardWidth - 1; i++)
         {
             for (int j = 1; j < _initBoardHeight - 1; j++)
             {
-                Values.SetPassable(0, i, j, true);
-                Values.SetPlaceable(0, i, j, true);
+                Values.SetPassable(floor, i, j, true);
+                Values.SetPlaceable(floor, i, j, true);
             }
         }
-
-        Values.startPositions.Add(new Vector2Int(1, 1));
-        Values.endPositions.Add(new Vector2Int(5, 4));
     }
 
     public void Expand(int floor)
@@ -193,11 +199,6 @@ public class BoardManager : MonoBehaviour
         return _distanceBetweenFloor;
     }
 
-    public int GetMaxFloor()
-    {
-        return Values.maxFloor;
-    }
-
     public int GetInitBoardWidth()
     {
         return _initBoardWidth;
@@ -211,9 +212,10 @@ public class BoardManager : MonoBehaviour
         return _initBoardHeight;
     }
 
-    public Vector2Int GetWorldPosToCell(Vector2 pos)
+    public Vector2Int GetWorldPosToCell(Vector2 pos, int floor)
     {
-        return (Vector2Int)ToGameBase((Vector2Int)_tilemap.WorldToCell(pos));
+        Vector2Int gameBase = (Vector2Int)ToGameBase((Vector2Int)_tilemap.WorldToCell(pos));
+        return new Vector2Int(gameBase.x, gameBase.y - floor * GetDistanceBetweenFloor());
     }
 
     public Vector3Int ToRealBase(Vector2Int vector) //Remember to change down if change this

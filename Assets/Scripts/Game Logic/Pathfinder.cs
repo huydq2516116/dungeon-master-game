@@ -10,7 +10,7 @@ public static class Pathfinder
         int height = BoardManager.Instance.GetInitBoardHeight();
         bool[,] visited = new bool[width, height];
         Vector2Int[,] parent = new Vector2Int[width, height];
-        Vector2Int[] queue = new Vector2Int[width * height];
+        Vector2Int[] queue = new Vector2Int[width * height]; 
 
         int blockLength = n;
         for (int i = 0; i < width; i++)

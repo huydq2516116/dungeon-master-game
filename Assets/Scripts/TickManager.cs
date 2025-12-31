@@ -55,7 +55,6 @@ public class TickManager : MonoBehaviour
             TrapTick?.Invoke();
             MonsterTick?.Invoke();
 
-            
             UITick?.Invoke();
         }
         

@@ -6,15 +6,15 @@ public class CellObject : MonoBehaviour
 {
     private void Start()
     {
-        TickManager.Instance.StartCellObject += StartCellObject;
+        
     }
-    protected virtual void StartCellObject()
+    public virtual void Generated(int floor)
     {
 
     }
     public virtual void Moved(Vector2Int startPos,Vector2Int targetPos, int floor)
     {
-        transform.position = BoardManager.Instance.CellToWorld(targetPos, 0);
+        transform.position = BoardManager.Instance.CellToWorld(targetPos, floor);
         Values.SetContainedObject(floor, targetPos.x, targetPos.y, this);
         // Need To Assign Passable in targetPos in Child
         Values.SetPlaceable(floor, targetPos.x, targetPos.y, false);
